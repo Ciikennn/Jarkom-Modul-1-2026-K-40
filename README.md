@@ -477,7 +477,7 @@ put: Access failed: 550 Permission denied. (file_mika.txt)
 Screenshot pesan `550 Permission denied` ini menjadi bukti `write_enable=NO` untuk Mika sudah bekerja.
 
 
-![topologi](images/mikatolak(2).png)
+![topologi](images/mikatolak1.png)
 
 ---
 
