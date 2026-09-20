@@ -576,7 +576,7 @@ exit
 | Kredensial plaintext | Klik kanan salah satu paket Telnet → **Follow → TCP Stream**. Username `phantom_user` & password `wired_ghost` akan terlihat jelas tanpa enkripsi. |
 | Kenapa tiap karakter jadi paket TCP terpisah | Telnet beroperasi dalam mode **Character-at-a-time (Remote Echo)** — tiap tombol ditekan langsung dibungkus satu paket TCP dan dikirim real-time ke server, lalu server meng-*echo*-kan kembali karakter itu ke klien agar muncul di layar. Ini yang menyebabkan banyak paket kecil hanya untuk mengirim satu kata. |
 
-Screenshot jendela *Follow TCP Stream* ini jadi bukti bahwa Telnet tidak aman — bandingkan nanti dengan hasil SSH di bagian 13 yang sudah terenkripsi.
+![ftp](images/no11-1.png)
 
 ---
 
