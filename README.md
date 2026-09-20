@@ -358,7 +358,7 @@ ftp 192.231.2.2
 ```
 Hasil yang diharapkan: koneksi langsung ditolak dengan pesan `530 Permission denied` / login failed — bukti bahwa Eiri sudah masuk `userlist_deny` dan tidak bisa mengakses FTP sama sekali.
 
-![ftp](images/ftp.png)
+![no7](images/no7-1.png)
 
 ---
 
