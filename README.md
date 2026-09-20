@@ -264,11 +264,12 @@ Di GNS3, klik kanan kabel yang terhubung ke node Knights (atau Chisa) → Start 
 
 Soal: unduh dokumen dari link Google Drive ke FTP Server Chisa, lalu dari node Mika unduh file itu pakai akun mika, dan buktikan pembatasan read-only (upload ditolak 550).
 
+Di Console Chisa, jalankan cat << 'EOF' > /var/wired/data/protocol7_manifesto.txt, lalu paste isi file tadi, tutup dengan EOF:
+
 9.1 
 ```
 
-Di Console Chisa, jalankan cat << 'EOF' > /var/wired/data/protocol7_manifesto.txt, lalu paste isi file tadi, tutup dengan EOF:
-bash
+
 cat << 'EOF' > /var/wired/data/protocol7_manifesto.txt
 ==================================================
   PROTOCOL 7 — THE MANIFESTO
@@ -335,14 +336,28 @@ pip3 install gdown --break-system-packages
 ```
 cat /var/wired/data/protocol7_manifesto.txt
 ```
+```
+mkdir -p /etc/vsftpd_user_conf
+echo "write_enable=YES" > /etc/vsftpd_user_conf/alice
+echo "write_enable=NO" > /etc/vsftpd_user_conf/mika
 9.2 Siapkan file dummy untuk uji upload (Console Mika)
-bash
+```
+```
+/etc/init.d/vsftpd restart
+```
+```
+cat /etc/vsftpd_user_conf/alice
+cat /etc/vsftpd_user_conf/mika
+```
 ```
 echo "Ini file percobaan upload dari Mika" > file_mika.txt
 ```
 9.3 Login FTP dari Mika, buktikan Read vs Write
-bash
+```
 lftp -u mika 192.231.2.2
+get protocol7_manifesto.txt   # berhasil -> bukti hak READ
+put file_mika.txt
+```
 # password: 123
 
 ![mikatolak](images/mikatolak1.png)
