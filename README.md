@@ -525,6 +525,10 @@ Klik salah satu paket `Echo (ping) request` dan `Echo (ping) reply`, lalu screen
 - **Packet loss 0%** menandakan tidak ada paket yang hilang di jalur Knights → Chisa, berarti routing dan link antar Switch 3 dan Switch 2 (lewat Router Lain) stabil.
 - **RTT (Round Trip Time)** menunjukkan waktu tempuh pulang-pergi satu paket ICMP; nilai `avg` yang kecil dan konsisten (selisih `min` dan `max` tidak jauh) menandakan latensi jaringan stabil, sedangkan `mdev` (mean deviation) yang besar menandakan jitter/ketidakstabilan.
 
+![topologi](images/req.png)
+![topologi](images/rep.png)
+
+
 ---
 
 ## 11. Buktikan Kelemahan Protokol Telnet (`phantom_user` login dari Eiri)
