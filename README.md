@@ -118,56 +118,43 @@ useradd -m eiri && echo "eiri:123" | chpasswd
 
 ```bash
 mkdir -p /var/wired/data
-chown -R ftp:ftp /var/wired/data
-chmod 755 /var/wired/data
+chown alice:alice /var/wired/data
+chmod 775 /var/wired/data
 ```
 
 
 ```bash
-nano /etc/vsftpd.conf
-```
-
-```
+cat > /etc/vsftpd.conf << 'EOF'
 listen=YES
 anonymous_enable=NO
 local_enable=YES
 write_enable=YES
 local_umask=022
-dirmessage_enable=YES
-use_localtime=YES
-xferlog_enable=YES
-connect_from_port_20=YES
 chroot_local_user=YES
-secure_chroot_dir=/var/run/vsftpd/empty
-pam_service_name=vsftpd
-local_root=/var/wired/data
-pasv_enable=YES
-pasv_min_port=40000
-pasv_max_port=50000
-user_config_dir=/etc/vsftpd_user_conf
+allow_writeable_chroot=YES
+seccomp_sandbox=NO
 userlist_enable=YES
-userlist_file=/etc/vsftpd.user_list
 userlist_deny=YES
+userlist_file=/etc/vsftpd.userlist
+pam_service_name=vsftpd
+user_config_dir=/etc/vsftpd/user_conf
+EOF
 ```
 
 
 ```bash
-mkdir -p /etc/vsftpd_user_conf
-
-# Alice -> Read & Write
-echo "write_enable=YES" > /etc/vsftpd_user_conf/alice
-
-# Mika -> Read-only
-echo "write_enable=NO" > /etc/vsftpd_user_conf/mika
-
-# Eiri -> Blacklist (tidak boleh login sama sekali)
-echo "eiri" >> /etc/vsftpd.user_list
+mkdir -p /etc/vsftpd/user_conf
+echo "write_enable=YES" > /etc/vsftpd/user_conf/alice
+echo "write_enable=NO" > /etc/vsftpd/user_conf/mika
+```
+```
+echo "eiri" > /etc/vsftpd.userlist
 ```
 
 ### 7.5 Jalankan ulang service vsftpd
 
-```bash
-/etc/init.d/vsftpd restart
+```
+service vsftpd restart
 ```
 
 **Verifikasi service aktif:**
