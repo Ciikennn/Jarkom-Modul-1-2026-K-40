@@ -1,4 +1,4 @@
-# Jarkom-Modul-1-2026-K-20
+# Jarkom-Modul-1-2026-K-40
 
 Laporan konfigurasi jaringan **The Wired** menggunakan GNS3, dengan Router **Lain** dan lima Entitas (**Alice, Mika, Chisa, Knights, Eiri**) berbasis node **Debian (debinet)**.
 
