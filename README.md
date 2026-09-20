@@ -246,6 +246,12 @@ ls -l knights_report.txt
 cat knights_report.txt
 ```
 8.2 Mulai capture Wireshark
+ke console alice
+```
+lftp -u alice 192.231.2.2
+put knights_report.txt
+
+```
 
 Di GNS3, klik kanan kabel yang terhubung ke node Knights (atau Chisa) → Start capture. Lakukan sebelum upload dijalankan.
 
