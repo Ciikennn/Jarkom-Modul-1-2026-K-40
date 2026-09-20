@@ -418,6 +418,7 @@ Stop capture, filter `ftp`, lalu temukan tiga hal berikut:
 | Port data PASV | `Response: 227 Entering Passive Mode (192,231,2,2,X,Y)` → port = `(X × 256) + Y` |
 
 ---
+![ftp](images/ftp.png)
 
 ## 9. Mika Mengakses Dokumen Protokol Tujuh (Uji Read-Only FTP)
 
