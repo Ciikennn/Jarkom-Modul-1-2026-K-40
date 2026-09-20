@@ -625,6 +625,11 @@ nc -zv 192.231.3.2 22 80 7777
 
 Ambil 2 screenshot: satu untuk `SYN-ACK` (port 22/80), satu untuk `RST-ACK` (port 7777).
 
+![ftp](images/no810-1.png)
+![ftp](images/no10-2.png)
+![ftp](images/no10-3.png)
+
+
 ---
 
 ## 13. SSH Public Key Authentication (Mika → Knights)
@@ -680,141 +685,8 @@ Harus langsung masuk **tanpa diminta password**. Ketik `exit`, lalu stop capture
 | Key Exchange Init | `Key Exchange Init` | Diffie-Hellman: bertukar materi kriptografi publik untuk membentuk shared secret session key tanpa mengirim kunci rahasia lewat jaringan |
 | Setelah KEX | `Encrypted packet` | Seluruh sisa komunikasi (termasuk autentikasi & data) dienkripsi AES, sehingga sniffer tidak bisa membaca isinya |
 
-**Jawaban analisis (kenapa kredensial tidak terlihat, beda dari Telnet):**
+![ftp](images/no13-1.png)
+
+
 Begitu fase Key Exchange selesai, Mika dan Knights sudah sepakat memakai kunci enkripsi simetris. Sejak titik itu seluruh paket — termasuk proses autentikasi berbasis key dan pertukaran data — tampil di Wireshark hanya sebagai `Encrypted packet`, berbeda dengan Telnet yang mengirim setiap karakter secara plaintext.
-
----
-
-## File yang Perlu Disimpan di `/root` Tiap Node
-
-Semua file di bawah ini disimpan di `/root` masing-masing node (kecuali disebutkan lain) supaya persisten dan tidak perlu diketik ulang saat GNS3 dibuka lagi.
-
-### Router Lain
-```bash
-/root/cek_status.sh      # sudah dibuat di bagian 5 — cek IP + tabel NAT
-```
-`/etc/rc.local` (bukan di `/root`, tapi wajib untuk auto-start NAT/DHCP retry — lihat bagian sebelumnya di chat).
-
-### Alice (`192.231.1.2`)
-```bash
-cat << 'EOF' > /root/signal_alice.txt
-Ini pesan dari Alice
-EOF
-
-cat << 'EOF' > /root/cek_alice.sh
-#!/bin/bash
-ip -br a
-cat /etc/resolv.conf
-ping -c2 8.8.8.8
-EOF
-chmod +x /root/cek_alice.sh
-```
-
-### Mika (`192.231.1.3`)
-```bash
-cat << 'EOF' > /root/traffic_generator.sh
-#!/bin/bash
-echo "============================================"
-echo "  Protocol 7 Traffic Generator v2026"
-echo "  Node: Mika Iwakura"
-echo "============================================"
-echo "[*] Generating DNS & ICMP traffic..."
-
-ping -c 5 8.8.8.8 &
-ping -c 5 1.1.1.1 &
-ping -c 3 its.ac.id &
-
-nslookup google.com 8.8.8.8 &
-nslookup its.ac.id 8.8.8.8 &
-nslookup github.com 1.1.1.1 &
-dig @8.8.8.8 example.com A &
-dig @1.1.1.1 cloudflare.com AAAA &
-
-wait
-echo "[*] Traffic generation complete."
-echo "[*] Check Wireshark for captured packets."
-EOF
-chmod +x /root/traffic_generator.sh
-
-echo "Ini file percobaan upload dari Mika" > /root/file_mika.txt
-```
-> `id_rsa` / `id_rsa.pub` untuk SSH (bagian 13) otomatis tersimpan persisten di `/home/mika_admin/.ssh/`, bukan di `/root` — tidak perlu dipindah.
-
-### Chisa (`192.231.2.2`)
-Data FTP tetap di `/var/wired/data` (bukan `/root`), tapi simpan script setup-nya di `/root` sebagai cadangan kalau perlu setup ulang:
-```bash
-cat << 'EOF' > /root/setup_ftp.sh
-#!/bin/bash
-apt update && apt install vsftpd -y
-useradd -m alice && echo "alice:123" | chpasswd
-useradd -m mika && echo "mika:123" | chpasswd
-useradd -m eiri && echo "eiri:123" | chpasswd
-mkdir -p /var/wired/data
-chown -R ftp:ftp /var/wired/data
-chmod 777 /var/wired/data
-mkdir -p /etc/vsftpd_user_conf
-echo "write_enable=YES" > /etc/vsftpd_user_conf/alice
-echo "write_enable=NO" > /etc/vsftpd_user_conf/mika
-echo "eiri" >> /etc/vsftpd.user_list
-/etc/init.d/vsftpd restart
-EOF
-chmod +x /root/setup_ftp.sh
-```
-
-Untuk demo Telnet (bagian 11), simpan juga script setup-nya:
-```bash
-cat << 'EOF' > /root/setup_telnet.sh
-#!/bin/bash
-apt update && apt install telnetd openbsd-inetd -y
-useradd -m phantom_user && echo "phantom_user:wired_ghost" | chpasswd
-mkdir -p /dev/pts
-mount -t devpts devpts /dev/pts
-pkill inetd
-echo "telnet stream tcp nowait root /usr/sbin/telnetd telnetd" > /etc/inetd.conf
-/usr/sbin/inetd
-EOF
-chmod +x /root/setup_telnet.sh
-```
-> File `protocol7_manifesto.txt` (bagian 9) disimpan di `/var/wired/data/`, bukan `/root`, karena harus bisa diakses lewat FTP.
-
-### Knights (`192.231.3.2`)
-```bash
-# File laporan intelijen untuk soal 8 (isi asli diambil dari link Drive, lihat bagian 8.1)
-cat << 'EOF' > /root/knights_report.txt
-[PASTE ISI FILE DARI LINK DRIVE — lihat bagian 8.1]
-EOF
-
-cat << 'EOF' > /root/setup_services.sh
-#!/bin/bash
-apt update && apt install openssh-server nginx -y
-/etc/init.d/ssh start
-/etc/init.d/nginx start
-EOF
-chmod +x /root/setup_services.sh
-```
-> `authorized_keys` dari `mika_admin` (bagian 13) tersimpan otomatis di `/home/mika_admin/.ssh/`, bukan `/root`.
-
-### Eiri (`192.231.3.3`)
-Tidak ada file wajib di `/root` — perannya cuma membuktikan penolakan akses (FTP `530`/blacklist) dan sebagai client Telnet untuk demo kelemahan protokol (bagian 10, login `phantom_user`/`wired_ghost` ke Chisa). Cukup pastikan paket client terpasang:
-```bash
-apt update && apt install telnet -y
-```
-Screenshot hasil percobaan (gagal FTP / sukses Telnet + Follow TCP Stream) sudah cukup, tidak perlu file tambahan.
-
----
-
-## Ringkasan Alur Pengerjaan
-
-1. Setting IP tiap node sesuai tabel subnet → cek dengan `ip -br a`.
-2. Aktifkan `ip_forward` + NAT Masquerade di Lain → cek `ping 8.8.8.8` dari Lain.
-3. Pastikan gateway tiap Client mengarah ke Lain → cek ping antar subnet.
-4. Set `resolv.conf` di semua Client → cek `ping 8.8.8.8` & `ping google.com`.
-5. Buat `/root/cek_status.sh` di Lain → uji setelah `reboot`.
-6. Jalankan traffic generator di Mika → capture Wireshark dengan filter `dns || icmp`.
-7. Install & konfigurasi `vsftpd` di Chisa → buktikan Alice R/W, Mika read-only, Eiri diblokir.
-8. Knights upload laporan intelijen ke FTP Chisa via akun `alice` (file dari link Drive) → cek `STOR`/`226`/PASV port di Wireshark.
-9. Mika unduh dokumen Protokol Tujuh dari link Drive ke FTP Chisa → uji read-only (download OK, upload `550`).
-10. Ping latency Knights → Chisa (`-c 77 -s 128 -i 0.3`) → catat ICMP Type/Code (8/0 request, 0/0 reply), packet loss & RTT.
-11. Kelemahan Telnet `phantom_user`/`wired_ghost` dari Eiri → *Follow TCP Stream* + jelaskan character-at-a-time.
-12. Port scan Netcat dari Alice ke Knights → bandingkan `SYN-ACK` (terbuka) vs `RST-ACK` (tertutup) di Wireshark.
-13. Setup SSH key-based auth Mika → Knights (`PasswordAuthentication no`) → analisis Protocol Version Exchange, Key Exchange Init, dan paket terenkripsi di Wireshark.
+nit, dan paket terenkripsi di Wireshark.
